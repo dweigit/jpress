@@ -49,6 +49,7 @@ import io.jpress.router.RouterNotAllowConvert;
 import io.jpress.template.TemplateManager;
 import io.jpress.template.TplModule;
 import io.jpress.template.TplTaxonomyType;
+import io.jpress.utils.CookieUtils;
 import io.jpress.utils.JsoupUtils;
 import io.jpress.utils.StringUtils;
 
@@ -89,13 +90,18 @@ public class _ContentController extends JBaseCRUDController<Content> {
 
 		String keyword = getPara("k", "").trim();
 
+		String userId = CookieUtils.get(this, Consts.COOKIE_LOGINED_USER);
+		if (StringUtils.isNotBlank(userId)) {
+			UserQuery.me().findById(new BigInteger(userId));
+		}
+
 		Page<Content> page = null;
 		if (StringUtils.isNotBlank(getStatus())) {
 			page = ContentQuery.me().paginateBySearch(getPageNumber(), getPageSize(), getModuleName(), keyword,
-					getStatus(), tids, null);
+					getStatus(), tids, null,new BigInteger(userId));
 		} else {
 			page = ContentQuery.me().paginateByModuleNotInDelete(getPageNumber(), getPageSize(), getModuleName(),
-					keyword, tids, null);
+					keyword, tids, null,new BigInteger(userId));
 		}
 
 		filterUI(tids);

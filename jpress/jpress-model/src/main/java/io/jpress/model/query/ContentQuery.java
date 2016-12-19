@@ -25,6 +25,7 @@ import com.jfinal.plugin.activerecord.Record;
 import com.jfinal.plugin.ehcache.IDataLoader;
 
 import io.jpress.model.Content;
+import io.jpress.model.User;
 import io.jpress.model.core.Jdb;
 import io.jpress.model.vo.Archive;
 import io.jpress.template.TemplateManager;
@@ -51,7 +52,7 @@ public class ContentQuery extends JBaseQuery {
 	}
 
 	public Page<Content> paginateByModuleAndStatus(int page, int pagesize, String module, String status,
-			String orderBy) {
+                                                   String orderBy) {
 		return paginate(page, pagesize, module, null, status, null, null, orderBy);
 	}
 
@@ -60,9 +61,9 @@ public class ContentQuery extends JBaseQuery {
 	}
 
 	public Page<Content> paginateBySearch(int page, int pagesize, String module, String keyword, String status,
-			BigInteger[] tids, String month) {
+                                          BigInteger[] tids, String month, BigInteger userId) {
 		String[] modules = StringUtils.isNotBlank(module) ? new String[] { module } : null;
-		return paginate(page, pagesize, modules, keyword, status, tids, null, month, null);
+		return paginate(page, pagesize, modules, keyword, status, tids, userId, month, null);
 	}
 
 	public Page<Content> paginateByModuleInNormal(int page, int pagesize, String module) {
@@ -70,15 +71,24 @@ public class ContentQuery extends JBaseQuery {
 	}
 
 	public Page<Content> paginateByModuleNotInDelete(int page, int pagesize, String module, String keyword,
-			BigInteger[] taxonomyIds, String month) {
+                                                     BigInteger[] taxonomyIds, String month, BigInteger userId) {
 
 		StringBuilder sql = new StringBuilder(" from content c");
 		sql.append(" left join mapping m on c.id = m.`content_id`");
 		sql.append(" left join taxonomy  t on  m.`taxonomy_id` = t.id");
-		sql.append(" where c.status <> ?");
+		sql.append(" left join user u on  c.`user_id` = u.id");
+		sql.append(" where c.status <> ? ");
 
 		LinkedList<Object> params = new LinkedList<Object>();
 		params.add(Content.STATUS_DELETE);
+
+		//增加非管理员权限
+		User user = UserQuery.me().findById(userId);
+		if(user == null || !user.isAdministrator()){
+			sql.append(" and c.user_id = ? ");
+			params.add(userId);
+		}
+
 
 		appendIfNotEmpty(sql, "c.module", module, params, false);
 
@@ -99,7 +109,7 @@ public class ContentQuery extends JBaseQuery {
 		sql.append(" group by c.id");
 		sql.append(" ORDER BY c.created DESC");
 
-		String select = "select c.*";
+		String select = "select c.*,u.nickname username";
 		if (params.isEmpty()) {
 			return DAO.paginate(page, pagesize, true, select, sql.toString());
 		}
@@ -108,7 +118,7 @@ public class ContentQuery extends JBaseQuery {
 	}
 
 	public Page<Content> paginateInNormal(int page, int pagesize, String module, BigInteger[] taxonomyIds,
-			String orderBy) {
+                                          String orderBy) {
 
 		LinkedList<Object> params = new LinkedList<Object>();
 
@@ -154,7 +164,7 @@ public class ContentQuery extends JBaseQuery {
 	}
 
 	public Page<Content> paginate(int page, int pagesize, String module, String keyword, String status,
-			BigInteger[] taxonomyIds, BigInteger userId, String orderBy) {
+                                  BigInteger[] taxonomyIds, BigInteger userId, String orderBy) {
 
 		String[] modules = StringUtils.isNotBlank(module) ? new String[] { module } : null;
 
@@ -162,19 +172,20 @@ public class ContentQuery extends JBaseQuery {
 	}
 
 	public Page<Content> paginate(int page, int pagesize, String[] modules, String keyword, String status,
-			BigInteger[] taxonomyIds, BigInteger userId, String orderBy) {
+                                  BigInteger[] taxonomyIds, BigInteger userId, String orderBy) {
 
 		return paginate(page, pagesize, modules, keyword, status, taxonomyIds, userId, null, orderBy);
 	}
 
 	public Page<Content> paginate(int page, int pagesize, String[] modules, String keyword, String status,
-			BigInteger[] taxonomyIds, BigInteger userId, String month, String orderBy) {
+                                  BigInteger[] taxonomyIds, BigInteger userId, String month, String orderBy) {
 
-		String select = "select c.*";
+		String select = "select c.*,u.nickname username";
 
 		StringBuilder sql = new StringBuilder(" from content c");
 		sql.append(" left join mapping m on c.id = m.`content_id`");
 		sql.append(" left join taxonomy  t on  m.`taxonomy_id` = t.id");
+		sql.append(" left join user u on  c.`user_id` = u.id");
 
 		LinkedList<Object> params = new LinkedList<Object>();
 
@@ -315,8 +326,8 @@ public class ContentQuery extends JBaseQuery {
 	}
 
 	public List<Content> findListInNormal(int page, int pagesize, String orderBy, String keyword, BigInteger[] typeIds,
-			String[] typeSlugs, String[] modules, String[] styles, String[] flags, String[] slugs, BigInteger[] userIds,
-			BigInteger[] parentIds, String[] tags, Boolean hasThumbnail, String month) {
+                                          String[] typeSlugs, String[] modules, String[] styles, String[] flags, String[] slugs, BigInteger[] userIds,
+                                          BigInteger[] parentIds, String[] tags, Boolean hasThumbnail, String month) {
 
 		if (modules == null) {
 			modules = TemplateManager.me().currentTemplateModulesAsArray();

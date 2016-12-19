@@ -19,11 +19,13 @@ import java.util.LinkedList;
 
 import io.jpress.core.addon.HookInvoker;
 import io.jpress.message.MessageKit;
+import io.jpress.model.User;
 import io.jpress.utils.StringUtils;
 
 public class MenuManager {
 
-	public static final String ACTION_INIT_MENU = "_INIT_MENU";
+	public static final String ACTION_INIT_MENU = "ADMIN_INIT_MENU";
+	public static final String EDITOR_INIT_MENU = "EDITOR_INIT_MENU";
 
 	static MenuManager manager = new MenuManager();
 	static final LinkedList<MenuGroup> menuGroups = new LinkedList<MenuGroup>();
@@ -32,10 +34,16 @@ public class MenuManager {
 		return manager;
 	}
 
-	public String generateHtml() {
-		if (menuGroups.isEmpty()) {
-			MessageKit.sendMessage(ACTION_INIT_MENU, this);
-		}
+	public String generateHtml(User user) {
+		menuGroups.clear();
+//		if (menuGroups.isEmpty()) {
+			if (user != null && user.isAdministrator()) {
+				MessageKit.sendMessage(ACTION_INIT_MENU, this);
+			}
+			if (user != null) {
+				MessageKit.sendMessage(EDITOR_INIT_MENU, this);
+			}
+//		}
 
 		HookInvoker.menuInitBefore(this);
 

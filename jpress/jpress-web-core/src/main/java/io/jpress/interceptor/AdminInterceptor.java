@@ -45,13 +45,20 @@ public class AdminInterceptor implements Interceptor {
 		controller.setAttr("k", controller.getPara("k"));
 		controller.setAttr("page", controller.getPara("page"));
 
+
 		User user = InterUtils.tryToGetUser(inv);
 		
-		if (user != null && user.isAdministrator()) {
-			controller.setAttr("_menu_html", MenuManager.me().generateHtml());
-			inv.invoke();
-			return;
-		}
+//		if (user != null && user.isAdministrator()) {
+//			controller.setAttr("_menu_html", MenuManager.me().generateHtml());
+//			inv.invoke();
+//			return;
+//		}
+
+        if (user != null) {
+            controller.setAttr("_menu_html", MenuManager.me().generateHtml(user));
+            inv.invoke();
+            return;
+        }
 
 		controller.redirect("/admin/login");
 	}

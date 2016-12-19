@@ -88,7 +88,7 @@ public class _AdminController extends JBaseController {
 			return;
 		}
 
-		if (EncryptUtils.verlifyUser(user.getPassword(), user.getSalt(), password) && user.isAdministrator()) {
+		if (EncryptUtils.verlifyUser(user.getPassword(), user.getSalt(), password)) {
 
 			MessageKit.sendMessage(Actions.USER_LOGINED, user);
 
