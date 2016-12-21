@@ -1,6 +1,7 @@
-<#include "_layout.html"/>
+<#include "_layout.html"/> 
 <#macro script_import>
  <script src="${CPATH}/counter?cid=${content.id!}"></script>
+    <script src="${CTPATH}/assets/js/jquery-2.1.1.min.js"></script>
  <script src="${CTPATH}/assets/highlight/highlight.js"></script>
  <script src="${CTPATH}/assets/viewer/viewer.min.js"></script>
 </#macro>
@@ -15,6 +16,23 @@ $(document).ready(function() {
 function reply(id){
 	$("#parent_id").val(id);
 }
+$(".aritcle img").click(function() {
+   var img_src = $(this).attr('src');
+   var body_height = $('body').outerHeight();
+   $('#show_img').attr('src',img_src) ;
+   var img_h = $('#show_img').height();
+   var img_w = $('#show_img').width();
+   var mg_left = -img_w/2;
+   var mg_top = -img_h/2;
+   $('#show_img').css({'margin-top':mg_top,'margin-left':mg_left,'display':'block'});
+   $('#img_bg').css('height',body_height).show();
+   return false;
+});
+
+$('#show_img,#img_bg').click(function() {
+    $('#show_img,#img_bg').hide();
+});
+</#macro>
 </#macro>
 <#macro css_import>
 <link rel="stylesheet" href="${CTPATH}/assets/highlight/styles/zenburn.css">
@@ -57,9 +75,9 @@ function reply(id){
 					${content.commentCount!'0'}
 				</p>
 	  </div>
-      <div id="aritcle" class="x-details-content x-padding-top-10 x-padding-bottom-10 aritcle">
+      <div class="x-details-content x-padding-top-10 x-padding-bottom-10 aritcle">
         ${content.text!}
-
+        
         <#if OPTION('jpblog_wechat_pay_enable')?? && OPTION('jpblog_wechat_pay_enable')=='true'>
         <div class="reward-content">
           <p><img src="${CPATH}${OPTION('jpblog_wechat_pay_image')!}"/> </p>
@@ -97,31 +115,31 @@ function reply(id){
     </#if>
     <!-- -->
     <@jp.commentPage pageSize="10">
-     <#if page ??>
+     <#if page ??> 
      <div class="x-white-box" id="clist">
       <h3 class="x-box-title">
         全部评论：<span>${page.totalRow!}条</span>
       </h3>
-
+      
 	  <#list page.getList() as comment>
       <div class="x-layout-100 clearfix x-part-border-bottom x-padding-bottom-10 x-padding-top-10">
         <div class="x-pull-left x-layout-10 x-box-border">
         <a href="#">
-        	<img class="x-image-radus x-item-space-4 x-sm-image" src="${CPATH}${comment.avatar!TPATH+'/assets/images/avatar.jpg'}"/>
+        	<img class="x-image-radus x-item-space-4 x-sm-image" src="${CPATH}${comment.avatar!TPATH+'/assets/images/avatar.jpg'}"/> 
         </a>
         </div>
         <div class="x-pull-left x-padding-left-2 x-layout-90 x-box-border comment">
-          <p class="x-margin-bottom-5 x-padding-top-2 x-box-border">${comment.author!}
+          <p class="x-margin-bottom-5 x-padding-top-2 x-box-border">${comment.author!} 
           <span class="x-font-grey">${(comment.created?string("yyyy-MM-dd"))!}</span>
           </p>
-
+          
           <#if comment.qc_content ??>
           <div class="jblog-comment-replay">
           	<h4>引用来之于${comment.qc_author!}的内容</h4>
           	${comment.qc_content!}
           </div>
           </#if>
-
+          
           <p>${comment.text!}</p>
         </div>
         <div class="x-layout-100 clearfix">
@@ -130,7 +148,7 @@ function reply(id){
       </div>
 	  </#list>
     </div>
-
+    
     	<#if (page.totalRow > 10 )>
     	<ul class="x-page">
 			<@pagination anchor="clist">
@@ -142,7 +160,7 @@ function reply(id){
 			</@pagination>
 		</ul>
 		</#if>
-
+    
     </#if>
      </@jp.commentPage>
     <!-- -->
@@ -154,9 +172,11 @@ function reply(id){
         <p>${(content.user.nickname)!(content.user.username)!}</p>
         <p class="x-font-grey x-margin-bottom-10 x-margin-top-10">${(content.user.signature)!'这家伙很赖，连签名都懒得填写...'}</p>
     </div>
- 	<#include "_content_box1.html"/>
-	<#include "_content_box2.html"/>
-	<#include "_tags_box.html"/>
+ 	<#include "_content_box1.html"/> 
+	<#include "_content_box2.html"/> 
+	<#include "_tags_box.html"/> 
   </div>
 </div>
+<img src="" style='z-index:1002;position:fixed; top:50%;left:50%; display:none' id="show_img"/>
+<div id='img_bg' style="width:100%; height:100%; opacity:0.6; background:#000000; z-index:1001; position:absolute;top:0;left:0;right:0; display:none"></div>
 </@layout>
