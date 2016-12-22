@@ -16,22 +16,6 @@ $(document).ready(function() {
 function reply(id){
 	$("#parent_id").val(id);
 }
-$(".aritcle img").click(function() {
-   var img_src = $(this).attr('src');
-   var body_height = $('body').outerHeight();
-   $('#show_img').attr('src',img_src) ;
-   var img_h = $('#show_img').height();
-   var img_w = $('#show_img').width();
-   var mg_left = -img_w/2;
-   var mg_top = -img_h/2;
-   $('#show_img').css({'margin-top':mg_top,'margin-left':mg_left,'display':'block'});
-   $('#img_bg').css('height',body_height).show();
-   return false;
-});
-
-$('#show_img,#img_bg').click(function() {
-    $('#show_img,#img_bg').hide();
-});
 </#macro>
 </#macro>
 <#macro css_import>
@@ -75,7 +59,7 @@ $('#show_img,#img_bg').click(function() {
 					${content.commentCount!'0'}
 				</p>
 	  </div>
-      <div class="x-details-content x-padding-top-10 x-padding-bottom-10 aritcle">
+      <div id="aritcle" class="x-details-content x-padding-top-10 x-padding-bottom-10 aritcle">
         ${content.text!}
         
         <#if OPTION('jpblog_wechat_pay_enable')?? && OPTION('jpblog_wechat_pay_enable')=='true'>
@@ -177,6 +161,4 @@ $('#show_img,#img_bg').click(function() {
 	<#include "_tags_box.html"/> 
   </div>
 </div>
-<img src="" style='z-index:1002;position:fixed; top:50%;left:50%; display:none' id="show_img"/>
-<div id='img_bg' style="width:100%; height:100%; opacity:0.6; background:#000000; z-index:1001; position:absolute;top:0;left:0;right:0; display:none"></div>
 </@layout>
